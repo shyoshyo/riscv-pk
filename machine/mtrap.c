@@ -263,6 +263,9 @@ void mcall_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
       retval = mcall_remote_fence_i((uintptr_t*)arg0);
       break;
     default:
+      // Workaround for creating first user process in Lab 5
+      // Can we do it better?
+      redirect_trap(mepc, read_csr(mstatus));
       retval = -ENOSYS;
       break;
   }
