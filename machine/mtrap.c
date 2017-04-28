@@ -223,6 +223,23 @@ static uintptr_t mcall_remote_fence_i(uintptr_t* hart_mask)
   return 0;
 }
 
+void redirect_trap(uintptr_t epc, uintptr_t mstatus)
+{
+  write_csr(sepc, epc);
+  write_csr(scause, read_csr(mcause));
+  write_csr(mepc, read_csr(stvec));
+
+  uintptr_t new_mstatus = mstatus & ~(MSTATUS_SPP | MSTATUS_SPIE | MSTATUS_MPIE);
+  uintptr_t mpp_s = MSTATUS_MPP & (MSTATUS_MPP >> 1);
+  new_mstatus |= (mstatus / (MSTATUS_MPIE / MSTATUS_SPIE)) & MSTATUS_SPIE;
+  new_mstatus |= (mstatus / (mpp_s / MSTATUS_SPP)) & MSTATUS_SPP;
+  new_mstatus |= mpp_s;
+  write_csr(mstatus, new_mstatus);
+
+  extern void __redirect_trap();
+  return __redirect_trap();
+}
+
 void mcall_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
 {
   uintptr_t n = regs[17], arg0 = regs[10], arg1 = regs[11], retval;
@@ -271,23 +288,6 @@ void mcall_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
   }
   regs[10] = retval;
   write_csr(mepc, mepc + 4);
-}
-
-void redirect_trap(uintptr_t epc, uintptr_t mstatus)
-{
-  write_csr(sepc, epc);
-  write_csr(scause, read_csr(mcause));
-  write_csr(mepc, read_csr(stvec));
-
-  uintptr_t new_mstatus = mstatus & ~(MSTATUS_SPP | MSTATUS_SPIE | MSTATUS_MPIE);
-  uintptr_t mpp_s = MSTATUS_MPP & (MSTATUS_MPP >> 1);
-  new_mstatus |= (mstatus / (MSTATUS_MPIE / MSTATUS_SPIE)) & MSTATUS_SPIE;
-  new_mstatus |= (mstatus / (mpp_s / MSTATUS_SPP)) & MSTATUS_SPP;
-  new_mstatus |= mpp_s;
-  write_csr(mstatus, new_mstatus);
-
-  extern void __redirect_trap();
-  return __redirect_trap();
 }
 
 static void machine_page_fault(uintptr_t* regs, uintptr_t mepc)
