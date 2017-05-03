@@ -2,6 +2,7 @@
 #include "encoding.h"
 #include "mtrap.h"
 #include "atomic.h"
+#include "string.h"
 #include <stdio.h>
 
 static void query_mem(const char* config_string)
@@ -91,6 +92,23 @@ static void query_harts(const char* config_string)
   assert(num_harts <= MAX_HARTS);
 }
 
+extern uintptr_t uart;
+extern void fpga_uart_init();
+
+static void query_uart(const char* config_string)
+{
+  query_result res = query_config_string(config_string, "uart{0{reiko");
+  if(!res.start) return;
+
+  res = query_config_string(config_string, "uart{0{addr");
+  assert(res.start);
+  uart = get_uint(res);
+
+  fpga_uart_init();
+
+  printm("reiko\n");
+}
+
 void parse_config_string()
 {
   uint32_t addr = *(uint32_t*)CONFIG_STRING_ADDR;
@@ -99,4 +117,5 @@ void parse_config_string()
   query_plic(s);
   query_rtc(s);
   query_harts(s);
+  query_uart(s);
 }

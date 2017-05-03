@@ -80,9 +80,90 @@ uintptr_t timer_interrupt()
   return 0;
 }
 
+uintptr_t uart;
+
+static inline uint8_t
+inb(uint32_t port) {
+    uint8_t data = *((volatile uint8_t*) port);
+    return data;
+}
+
+static inline void
+outb(uint32_t port, uint8_t data) {
+    *((volatile uint8_t*) port) = data;
+}
+
+static inline uint32_t
+inw(uint32_t port) {
+    uint32_t data = *((volatile uintptr_t *) port);
+    return data;
+}
+
+static inline void
+outw(uint32_t port, uint32_t data) {
+    *((volatile uintptr_t *) port) = data;
+}
+
+void
+fpga_uart_init()
+{
+    // set clk divsor
+    outb(uart + 3, 0x80);
+
+    // 32'd55; <=> wishbone clk 100M         115200
+    // 32'h1b; <=> wishbone clk 50M,         115200
+    outb(uart + 1, 0x00);
+    outb(uart + 0, 54);
+
+    // 8 bit, no chk, no parity, 1 stop
+    outb(uart + 3, 0x03);
+    
+    // set interrupt
+    outb(uart + 1, 0x01);
+}
+
+void
+fpga_uart_putchar_sub(uint8_t ch)
+{
+    while((inb(uart + 5) & 0x20) == 0);
+    outb(uart + 0, ch & 0xFF);
+}
+
+void
+fpga_uart_putchar(uint8_t c) {
+    if (c == '\b') {
+        fpga_uart_putchar_sub('\b');
+        fpga_uart_putchar_sub(' ');
+        fpga_uart_putchar_sub('\b');
+    }else {
+        fpga_uart_putchar_sub(c);
+    }
+}
+
+static uint8_t
+fpga_uart_getchar(void) {
+    uint8_t c;
+
+    if( (inb(uart + 5) & 0x01) == 0)
+      return -1;
+    c = inb(uart + 0) & 0xFF;
+
+    if (c == 127) {
+        c = '\b';
+    }
+    return c;
+}
+
 static uintptr_t mcall_console_putchar(uint8_t ch)
 {
-  do_tohost_fromhost(1, 1, ch);
+  if(uart == 0)
+  {
+    do_tohost_fromhost(1, 1, ch);
+  }
+  else
+  {
+    fpga_uart_putchar(ch);
+  }
   return 0;
 }
 

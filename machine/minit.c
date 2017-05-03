@@ -54,7 +54,8 @@ static void fp_init()
 {
   assert(read_csr(mstatus) & MSTATUS_FS);
 
-#ifdef __riscv_flen
+// #ifdef __riscv_flen
+#if 0
   if (!supports_extension('D'))
     die("FPU not found; recompile pk with -msoft-float");
   for (int i = 0; i < 32; i++)
@@ -84,6 +85,7 @@ static void memory_init()
 {
   mem_size = mem_size / MEGAPAGE_SIZE * MEGAPAGE_SIZE;
   first_free_paddr = sbi_top_paddr() + num_harts * RISCV_PGSIZE;
+  printm("mem_size = %x\n", mem_size);
 }
 
 static void hart_init()
@@ -95,16 +97,19 @@ static void hart_init()
 
 static void plic_init()
 {
+  printm("plic_ndevs = %d\n", plic_ndevs);
   for (size_t i = 1; i <= plic_ndevs; i++)
     plic_priorities[i] = 1;
 }
 
 static void prci_test()
 {
+  /*
   assert(!(read_csr(mip) & MIP_MSIP));
   *HLS()->ipi = 1;
   assert(read_csr(mip) & MIP_MSIP);
   *HLS()->ipi = 0;
+  */
 
   assert(!(read_csr(mip) & MIP_MTIP));
   *HLS()->timecmp = 0;
@@ -122,6 +127,8 @@ static void hart_plic_init()
   if (!plic_ndevs)
     return;
 
+  die("here");
+
   size_t ie_words = plic_ndevs / sizeof(uintptr_t) + 1;
   for (size_t i = 0; i < ie_words; i++)
     HLS()->plic_s_ie[i] = ULONG_MAX;
@@ -136,7 +143,7 @@ void init_first_hart()
   parse_config_string();
   plic_init();
   hart_plic_init();
-  //prci_test();
+  prci_test();
   memory_init();
   boot_loader();
 }

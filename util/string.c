@@ -1,14 +1,19 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include "mtrap.h"
 
 void* memcpy(void* dest, const void* src, size_t len)
 {
   const char* s = src;
   char *d = dest;
 
+  printm("==== begin: memcpy ====\n");
   if ((((uintptr_t)dest | (uintptr_t)src) & (sizeof(uintptr_t)-1)) == 0) {
     while ((void*)d < (dest + len - (sizeof(uintptr_t)-1))) {
+      if(((uintptr_t)d & 0xFFF) == 0x0)
+        printm("memcpy %x / %x\r", d, (dest + len - (sizeof(uintptr_t)-1)));
+
       *(uintptr_t*)d = *(const uintptr_t*)s;
       d += sizeof(uintptr_t);
       s += sizeof(uintptr_t);
@@ -16,13 +21,19 @@ void* memcpy(void* dest, const void* src, size_t len)
   }
 
   while (d < (char*)(dest + len))
+  {
+    if(((uintptr_t)d & 0xFFF) == 0x0)
+      printm("memcpy %x / %x\r", d, (dest + len));
+      
     *d++ = *s++;
-
+  }
+  printm("\n====  end: memcpy ====\n");
   return dest;
 }
 
 void* memset(void* dest, int byte, size_t len)
 {
+  printm("==== begin: memset ====\n");
   if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {
     uintptr_t word = byte & 0xFF;
     word |= word << 8;
@@ -31,12 +42,21 @@ void* memset(void* dest, int byte, size_t len)
 
     uintptr_t *d = dest;
     while (d < (uintptr_t*)(dest + len))
+    {
+      if(((uintptr_t)d & 0xFFF) == 0x0)
+        printm("memset %x / %x\r", d, dest + len);
       *d++ = word;
+    }
   } else {
     char *d = dest;
     while (d < (char*)(dest + len))
+    {
+      if(((uintptr_t)d & 0xFFF) == 0x0)
+        printm("memset %x / %x\r", d, dest + len);
       *d++ = byte;
+    }
   }
+  printm("\n====  end: memset ====\n");
   return dest;
 }
 

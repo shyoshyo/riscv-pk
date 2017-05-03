@@ -30,6 +30,8 @@ void load_kernel_elf(void* blob, size_t size, kernel_elf_info* info)
   min_vaddr = ROUNDDOWN(min_vaddr, MEGAPAGE_SIZE);
   uintptr_t bias = first_free_paddr - min_vaddr;
   for (int i = eh->e_phnum - 1; i >= 0; i--) {
+    printm("%d\n", i);
+
     if(ph[i].p_type == PT_LOAD && ph[i].p_memsz) {
       uintptr_t prepad = ph[i].p_vaddr % RISCV_PGSIZE;
       uintptr_t vaddr = ph[i].p_vaddr + bias;
