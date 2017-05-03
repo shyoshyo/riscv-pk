@@ -386,8 +386,19 @@ void trap_from_machine_mode(uintptr_t* regs, uintptr_t dummy, uintptr_t mepc)
 {
   uintptr_t mcause = read_csr(mcause);
 
+  extern void *misaligned_load_trap(uintptr_t*, uintptr_t, uintptr_t);
+  extern void *misaligned_store_trap(uintptr_t*, uintptr_t, uintptr_t);
+
   switch (mcause)
   {
+    case CAUSE_MISALIGNED_LOAD:
+      misaligned_load_trap(regs, mcause, mepc);
+      break;
+
+    case CAUSE_MISALIGNED_STORE:
+      misaligned_store_trap(regs, mcause, mepc);
+      break;
+
     case CAUSE_FAULT_LOAD:
     case CAUSE_FAULT_STORE:
       return machine_page_fault(regs, mepc);

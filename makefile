@@ -28,7 +28,7 @@ export	CROSS_COMPILE
 
 build/Makefile:
 	cd build && rm -f ./*
-	cd build && ../configure --prefix=$$RISCV --host=riscv32-unknown-elf --with-payload=../ucore/bin/kernel
+	cd build && ../configure --prefix=$$RISCV --host=riscv32-unknown-elf #--with-payload=../ucore/bin/kernel
 
 build/bbl: build/Makefile
 	cd build && $(MAKE)

@@ -136,6 +136,23 @@ static void hart_plic_init()
   *HLS()->plic_s_thresh = 0;
 }
 
+static void unaligned_r_w_test()
+{
+  // test unaligned r/w through mtrap
+  
+  uint32_t s[2] = {0x12345678, 0x9abcdef0};
+  printm("s = %p\n", s);
+
+  uint32_t value = 123;
+  asm volatile("lw %0, (%1)" : "=r"(value) : "r"((uintptr_t)s + 1));
+  assert(value == 0xf0123456);
+
+  value = 0x87654321;
+  asm volatile("sw %0, (%1)" : :"r"(value), "r"((uintptr_t)s + 3) : "memory");
+  assert(s[0] == 0x21345678);
+  assert(s[1] == 0x9a876543);
+}
+
 void init_first_hart()
 {
   hart_init();
@@ -144,6 +161,7 @@ void init_first_hart()
   plic_init();
   hart_plic_init();
   prci_test();
+  unaligned_r_w_test();
   memory_init();
   boot_loader();
 }

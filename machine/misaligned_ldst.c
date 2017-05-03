@@ -11,6 +11,8 @@ union byte_array {
 
 void misaligned_load_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
 {
+  log("machine mode: misaligned_load_trap()");
+
   union byte_array val;
   uintptr_t mstatus;
   insn_t insn = get_insn(mepc, &mstatus);
@@ -54,6 +56,8 @@ void misaligned_load_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
 
 void misaligned_store_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
 {
+  log("machine mode: misaligned_store_trap()");
+
   union byte_array val;
   uintptr_t mstatus;
   insn_t insn = get_insn(mepc, &mstatus);

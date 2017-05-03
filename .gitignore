@@ -8,4 +8,4 @@
 build/
 autom4te.cache/
 ucore/*
-
+Bin2Mem
