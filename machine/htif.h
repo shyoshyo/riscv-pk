@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+// Make HTIF console working on RV32
 #if 1
 # define TOHOST_CMD(dev, cmd, payload) \
   (((uint64_t)(dev) << 56) | ((uint64_t)(cmd) << 48) | (uint64_t)(payload))
