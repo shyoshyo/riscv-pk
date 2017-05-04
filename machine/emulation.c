@@ -81,6 +81,87 @@ void illegal_insn_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
   f(regs, mcause, mepc, mstatus, insn);
 }
 
+void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, int rd, int wt)
+{
+  static uint32_t index = 0;
+
+  uint32_t levels, ptesize, vpnlen;
+
+  uintptr_t ms = read_csr(mstatus);
+  uint32_t vm = (EXTRACT_FIELD(ms, MSTATUS_VM));
+
+#if __riscv_xlen == 32
+  uint32_t p = 32;
+  uintptr_t a = ((read_csr(sptbr)) & ((1 << 22) - 1)) * RISCV_PGSIZE;
+#else
+  uint32_t p = 64;
+  uintptr_t a = ((read_csr(sptbr)) & ((1ll << 38) - 1)) * RISCV_PGSIZE;
+#endif
+
+  switch(vm)
+  {
+    case VM_SV32: levels = 2; ptesize = 4; vpnlen = 10; break;
+    case VM_SV39: levels = 3; ptesize = 8; vpnlen = 9; break;
+    case VM_SV48: levels = 4; ptesize = 8; vpnlen = 9; break;
+    default: die("unsupport mstatus.vm = %x", vm);
+  }
+
+  uintptr_t mask = 0;
+  uintptr_t va = read_csr(mbadaddr);
+
+  log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
+    mepc, va, ex, rd, wt);
+
+  int i;
+  for(i = levels - 1; ; i--)
+  {
+    assert(i >= 0);
+
+    p -= vpnlen;
+    mask = ~((~mask) >> vpnlen);
+
+    uintptr_t vpn = ((va >> p) & ((1 << vpnlen) - 1));
+    uintptr_t *pte_p = (uintptr_t *)(a + vpn * ptesize);
+    uintptr_t pte = *pte_p;
+
+    assert((pte & PTE_V) != 0);
+    assert(((pte & PTE_R) == 0 && (pte & PTE_W) != 0) == 0);
+
+    if ((pte & (PTE_X | PTE_W | PTE_R)) == 0)
+    {
+      a = (pte >> 10) << RISCV_PGSHIFT;
+    }
+    else
+    {
+      if(ex == 1) assert(pte & PTE_X);
+      if(rd == 1) assert(pte & PTE_R);
+      if(wt == 1) assert(pte & PTE_W);
+
+      write_csr(0x7c0, index);
+      write_csr(0x7c1, va & mask);
+      write_csr(0x7c2, mask);
+      write_csr(0x7c3, pte);
+      write_csr(0x7c4, pte_p);
+
+      index += 1;
+      return;
+    }
+  }
+}
+
+void tlb_i_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
+{
+  tlb_miss_trap(regs, mcause, mepc, 1, 0, 0);
+}
+void tlb_r_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
+{
+  tlb_miss_trap(regs, mcause, mepc, 0, 1, 0);
+}
+void tlb_w_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
+{
+  tlb_miss_trap(regs, mcause, mepc, 0, 0, 1);
+}
+
 void __attribute__((noinline)) truly_illegal_insn(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, uintptr_t mstatus, insn_t insn)
 {
   redirect_trap(mepc, mstatus);

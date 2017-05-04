@@ -83,24 +83,24 @@ uintptr_t timer_interrupt()
 uintptr_t uart;
 
 static inline uint8_t
-inb(uint32_t port) {
+inb(uintptr_t port) {
     uint8_t data = *((volatile uint8_t*) port);
     return data;
 }
 
 static inline void
-outb(uint32_t port, uint8_t data) {
+outb(uintptr_t port, uint8_t data) {
     *((volatile uint8_t*) port) = data;
 }
 
 static inline uint32_t
-inw(uint32_t port) {
+inw(uintptr_t port) {
     uint32_t data = *((volatile uintptr_t *) port);
     return data;
 }
 
 static inline void
-outw(uint32_t port, uint32_t data) {
+outw(uintptr_t port, uint32_t data) {
     *((volatile uintptr_t *) port) = data;
 }
 

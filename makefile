@@ -7,19 +7,19 @@ SPIKE_FLAGS =
 
 ifndef CROSS_COMPILE
 ifeq ($(RV32),1)
-	CROSS_COMPILE = riscv32-unknown-elf-
+	CROSS_COMPILE = riscv32-unknown-elf
 	SPIKE_FLAGS += --isa=RV32IMA
 else
-	CROSS_COMPILE = riscv64-unknown-elf-
+	CROSS_COMPILE = riscv64-unknown-linux-gnu
 	SPIKE_FLAGS += --isa=RV64IMA
 endif
 endif
 
-CC = $(CROSS_COMPILE)as
-LD = $(CROSS_COMPILE)ld
-OBJCOPY = $(CROSS_COMPILE)objcopy
-OBJDUMP = $(CROSS_COMPILE)objdump
-GDB = $(CROSS_COMPILE)gdb
+CC = $(CROSS_COMPILE)-as
+LD = $(CROSS_COMPILE)-ld
+OBJCOPY = $(CROSS_COMPILE)-objcopy
+OBJDUMP = $(CROSS_COMPILE)-objdump
+GDB = $(CROSS_COMPILE)-gdb
 
 OBJECTS = build/bbl
 
@@ -28,7 +28,7 @@ export	CROSS_COMPILE
 
 build/Makefile:
 	cd build && rm -f ./*
-	cd build && ../configure --prefix=$$RISCV --host=riscv32-unknown-elf #--with-payload=../ucore/bin/kernel
+	cd build && ../configure --prefix=$$RISCV --host=$(CROSS_COMPILE) --with-payload=../ucore/bin/kernel #--with-payload=../linux/bin/vmlinux
 
 build/bbl: build/Makefile
 	cd build && $(MAKE)

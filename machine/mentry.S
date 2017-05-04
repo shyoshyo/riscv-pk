@@ -7,13 +7,13 @@
   .align 6
 trap_table:
   .word bad_trap
-  .word bad_trap
+  .word tlb_i_miss_trap
   .word illegal_insn_trap
   .word bad_trap
   .word misaligned_load_trap
-  .word bad_trap
+  .word tlb_r_miss_trap
   .word misaligned_store_trap
-  .word bad_trap
+  .word tlb_w_miss_trap
   .word bad_trap
   .word mcall_trap
   .word bad_trap
