@@ -63,7 +63,7 @@ static void fp_init()
     return;
   }
 #endif
-  log("FPU not found; recompile pk with -msoft-float");
+  // log("FPU not found; recompile pk with -msoft-float");
   uintptr_t fd_mask = (1 << ('F' - 'A')) | (1 << ('D' - 'A'));
   clear_csr(misa, fd_mask);
   assert(!(read_csr(misa) & fd_mask));
