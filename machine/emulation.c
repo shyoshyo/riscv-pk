@@ -89,8 +89,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
 
   uint32_t levels, ptesize, vpnlen;
 
-  uintptr_t ms = read_csr(mstatus);
-  uint32_t vm = (EXTRACT_FIELD(ms, MSTATUS_VM));
+  uintptr_t mstatus = read_csr(mstatus);
+  uint32_t vm = (EXTRACT_FIELD(mstatus, MSTATUS_VM));
 
 #if __riscv_xlen == 32
   uint32_t p = 32;
@@ -117,7 +117,7 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
   int i;
   for(i = levels - 1; ; i--)
   {
-    assert(i >= 0);
+    if(!(i >= 0)) goto fail;
 
     p -= vpnlen;
     mask = ~((~mask) >> vpnlen);
@@ -126,8 +126,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
     uintptr_t *pte_p = (uintptr_t *)(a + vpn * ptesize);
     uintptr_t pte = *pte_p;
 
-    assert((pte & PTE_V) != 0);
-    assert(((pte & PTE_R) == 0 && (pte & PTE_W) != 0) == 0);
+    if(!((pte & PTE_V) != 0)) goto fail;
+    if(!(((pte & PTE_R) == 0 && (pte & PTE_W) != 0) == 0)) goto fail;
 
     if ((pte & (PTE_X | PTE_W | PTE_R)) == 0)
     {
@@ -135,9 +135,9 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
     }
     else
     {
-      if(ex == 1) assert(pte & PTE_X);
-      if(rd == 1) assert(pte & PTE_R);
-      if(wt == 1) assert(pte & PTE_W);
+      if(ex == 1) { if(!(pte & PTE_X)) goto fail; }
+      if(rd == 1) { if(!(pte & PTE_R)) goto fail; }
+      if(wt == 1) { if(!(pte & PTE_W)) goto fail; }
 
       write_csr(0x7c0, index);
       write_csr(0x7c1, va & mask);
@@ -149,6 +149,12 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
       return;
     }
   }
+
+fail:
+  
+  write_csr(sbadaddr, read_csr(mbadaddr));
+  redirect_trap(mepc, mstatus);
+  __builtin_unreachable();
 }
 
 void tlb_i_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
