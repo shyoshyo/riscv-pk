@@ -37,10 +37,10 @@ static void delegate_traps()
   uintptr_t interrupts = MIP_SSIP | MIP_STIP | MIP_SEIP;
   uintptr_t exceptions =
     (1U << CAUSE_MISALIGNED_FETCH) |
-    (1U << CAUSE_FAULT_FETCH) |
+    // (1U << CAUSE_FAULT_FETCH) |
     (1U << CAUSE_BREAKPOINT) |
-    (1U << CAUSE_FAULT_LOAD) |
-    (1U << CAUSE_FAULT_STORE) |
+    // (1U << CAUSE_FAULT_LOAD) |
+    // (1U << CAUSE_FAULT_STORE) |
     (1U << CAUSE_BREAKPOINT) |
     (1U << CAUSE_USER_ECALL);
 
@@ -142,7 +142,6 @@ static void unaligned_r_w_test()
   // test unaligned r/w through mtrap
   
   uint32_t s[2] = {0x12345678, 0x9abcdef0};
-  printm("s = %p\n", s);
 
   uint32_t value = 123;
   asm volatile("lw %0, (%1)" : "=r"(value) : "r"((uintptr_t)s + 1));
@@ -154,6 +153,18 @@ static void unaligned_r_w_test()
   assert(s[1] == 0x9a876543);
 }
 
+void clock_test()
+{
+  *HLS()->timecmp = *mtime + 0x100000;
+  clear_csr(mip, MIP_STIP);
+  set_csr(mie, MIP_MTIP);
+  set_csr(mstatus, MSTATUS_MIE);
+  
+  for(;;);
+
+  __builtin_unreachable();
+}
+
 void init_first_hart()
 {
   hart_init();
@@ -163,6 +174,7 @@ void init_first_hart()
   hart_plic_init();
   prci_test();
   unaligned_r_w_test();
+  // clock_test();
   memory_init();
   boot_loader();
 }
@@ -183,6 +195,9 @@ void enter_supervisor_mode(void (*fn)(uintptr_t), uintptr_t stack)
   write_csr(mscratch, MACHINE_STACK_TOP() - MENTRY_FRAME_SIZE);
   write_csr(mepc, fn);
   write_csr(sptbr, (uintptr_t)root_page_table >> RISCV_PGSHIFT);
+
+  log("mie = %x\n", read_csr(mie));
+  
   asm volatile ("mv a0, %0; mv sp, %0; mret" : : "r" (stack));
   __builtin_unreachable();
 }

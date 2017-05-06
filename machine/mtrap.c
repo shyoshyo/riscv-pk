@@ -13,7 +13,7 @@ static spinlock_t htif_lock = SPINLOCK_INIT;
 
 void __attribute__((noreturn)) bad_trap()
 {
-  die("machine mode: unhandlable trap %d @ %p", read_csr(mcause), read_csr(mepc));
+  die("machine mode: unhandlable trap %x @ %p", read_csr(mcause), read_csr(mepc));
 }
 
 static uintptr_t mcall_hart_id()
@@ -70,13 +70,14 @@ static void htif_interrupt()
 
 uintptr_t timer_interrupt()
 {
+  // log("mie = %x", read_csr(mie));
   // just send the timer interrupt to the supervisor
   clear_csr(mie, MIP_MTIP);
+  // log("mie = %x", read_csr(mie));
   set_csr(mip, MIP_STIP);
 
   // and poll the HTIF console
   htif_interrupt();
-
   return 0;
 }
 
@@ -246,9 +247,14 @@ static uintptr_t mcall_shutdown()
 
 static uintptr_t mcall_set_timer(uint64_t when)
 {
+  // log("mcall_set_timer: mie = %x", read_csr(mie));
+  
   *HLS()->timecmp = when;
   clear_csr(mip, MIP_STIP);
   set_csr(mie, MIP_MTIP);
+  
+  // log("mcall_set_timer: mie = %x", read_csr(mie));
+  
   return 0;
 }
 
@@ -402,6 +408,12 @@ void trap_from_machine_mode(uintptr_t* regs, uintptr_t dummy, uintptr_t mepc)
     case CAUSE_FAULT_LOAD:
     case CAUSE_FAULT_STORE:
       return machine_page_fault(regs, mepc);
+
+    case IRQ_M_TIMER | (~((unsigned)(~0) >> 1u)):
+      printm("100 ticks!!\n");
+      *HLS()->timecmp = *mtime + 0x100000;
+      break;
+
     default:
       bad_trap();
   }

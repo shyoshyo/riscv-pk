@@ -70,6 +70,8 @@ void illegal_insn_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
   uintptr_t mstatus;
   insn_t insn = get_insn(mepc, &mstatus);
 
+  // log("insn = %x", insn);
+  
   if (unlikely((insn & 3) != 3))
     return truly_illegal_insn(regs, mcause, mepc, mstatus, insn);
 
@@ -109,8 +111,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
   uintptr_t mask = 0;
   uintptr_t va = read_csr(mbadaddr);
 
-  log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
-    mepc, va, ex, rd, wt);
+  // log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
+  //   mepc, va, ex, rd, wt);
 
   int i;
   for(i = levels - 1; ; i--)
@@ -162,6 +164,31 @@ void tlb_w_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
   tlb_miss_trap(regs, mcause, mepc, 0, 0, 1);
 }
 
+void tlb_flush()
+{
+  // log("tlb_flush()");
+
+  int i;
+  for(i = 0; ; i++)
+  {
+    write_csr(0x7c0, i);
+    if(read_csr(0x7c0) != i) break;
+    
+    // log("tlb_flush() %d", i);
+
+    uintptr_t pte;
+    pte = read_csr(0x7c3);
+    if((pte & PTE_V) == 0) continue; 
+
+    uintptr_t *pte_p;
+    pte_p = (uintptr_t *)read_csr(0x7c4);
+    *pte_p = pte;
+
+    pte &= ~PTE_V;
+    write_csr(0x7c3, pte);
+  }
+}
+
 void __attribute__((noinline)) truly_illegal_insn(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, uintptr_t mstatus, insn_t insn)
 {
   redirect_trap(mepc, mstatus);
@@ -172,6 +199,8 @@ static inline int emulate_read_csr(int num, uintptr_t mstatus, uintptr_t* result
   uintptr_t counteren =
     EXTRACT_FIELD(mstatus, MSTATUS_MPP) == PRV_U ? read_csr(mucounteren) :
                                                    read_csr(mscounteren);
+
+  // log("emulate_read_csr = %x, CSR_TIME[H] = %x, %x", num, CSR_TIME, CSR_TIMEH);
 
   switch (num)
   {
@@ -224,6 +253,12 @@ DECLARE_EMULATION_FUNC(emulate_system_opcode)
   uintptr_t rs1_val = GET_RS1(insn, regs);
   int csr_num = (uint32_t)insn >> 20;
   uintptr_t csr_val, new_csr_val;
+
+  if((insn & 0xFFF07FFF) == 0x10400073)
+  {
+    tlb_flush();
+    return;
+  }
 
   if (emulate_read_csr(csr_num, mstatus, &csr_val))
     return truly_illegal_insn(regs, mcause, mepc, mstatus, insn);
