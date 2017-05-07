@@ -114,7 +114,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
   // log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
   //   mepc, va, ex, rd, wt);
 
-  int i;
+  int mxr = (EXTRACT_FIELD(mstatus, MSTATUS_MXR));
+  int i;  
   for(i = levels - 1; ; i--)
   {
     if(!(i >= 0)) goto fail;
@@ -136,8 +137,40 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
     else
     {
       if(ex == 1) { if(!(pte & PTE_X)) goto fail; }
-      if(rd == 1) { if(!(pte & PTE_R)) goto fail; }
+      // TODO: mxr
+      if(rd == 1) { if(!(pte & (PTE_R | PTE_X))) goto fail; }
       if(wt == 1) { if(!(pte & PTE_W)) goto fail; }
+
+      pte |= PTE_A;
+      if(wt) pte |= PTE_D;
+      *pte_p = pte;
+
+      // need update
+      if(((uintptr_t)read_csr(0x7c0)) >> (__riscv_xlen - 1))
+      {
+        log("tlb_miss_trap: update, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
+          mepc, va, ex, rd, wt);
+
+        uintptr_t index_old = read_csr(0x7c0);
+        uintptr_t va_old = read_csr(0x7c1);
+        uintptr_t mask_old = read_csr(0x7c2);
+        uintptr_t pte_old = read_csr(0x7c3);
+        uintptr_t *pte_p_old = (uintptr_t *)read_csr(0x7c4);
+
+        assert(index_old >> (__riscv_xlen - 1));
+        assert((va & mask) == (va_old & mask_old));
+        assert(mask == mask_old);
+        assert((pte | PTE_D) == (pte_old | PTE_A | PTE_D));
+        assert(pte_p == pte_p_old);
+
+        *pte_p = pte;
+        write_csr(0x7c3, pte);
+
+        write_csr(0x7c0, index_old);
+        assert(read_csr(0x7c0) == (index_old << 1) >> 1);
+        return;
+      }
+
 
       write_csr(0x7c0, index);
       write_csr(0x7c1, va & mask);
@@ -180,18 +213,7 @@ void tlb_flush()
     write_csr(0x7c0, i);
     if(read_csr(0x7c0) != i) break;
     
-    // log("tlb_flush() %d", i);
-
-    uintptr_t pte;
-    pte = read_csr(0x7c3);
-    if((pte & PTE_V) == 0) continue; 
-
-    uintptr_t *pte_p;
-    pte_p = (uintptr_t *)read_csr(0x7c4);
-    *pte_p = pte;
-
-    pte &= ~PTE_V;
-    write_csr(0x7c3, pte);
+    write_csr(0x7c3, 0x0);
   }
 }
 
