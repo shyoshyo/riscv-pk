@@ -1,0 +1,419 @@
+# //  ModelSim SE-64 10.2c Jul 18 2013 Linux 4.4.0-72-generic
+# //
+# //  Copyright 1991-2013 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Loading project riscv
+# Compile of ctrl.v was successful.
+# Compile of defines.v was successful.
+# Compile of div.v was successful.
+# Compile of ex.v was successful.
+# Compile of ex_mem.v was successful.
+# Compile of id.v was successful.
+# Compile of id_ex.v was successful.
+# Compile of if_id.v was successful.
+# Compile of llbit_reg.v was successful.
+# Compile of mem.v was successful.
+# Compile of mem_wb.v was successful.
+# Compile of openriscv.v was successful.
+# Compile of pc_reg.v was successful.
+# Compile of regfile.v was successful.
+# Compile of wishbone_bus_if.v was successful.
+# Compile of bootloader_rom.v was successful.
+# Compile of data_ram.v was successful.
+# Compile of flash_rom.v was successful.
+# Compile of openriscv_min_sopc.v was successful.
+# Compile of openriscv_min_sopc_tb.v was successful.
+# Compile of phy_bus_addr_conv.v was successful.
+# Compile of async.v was successful.
+# Compile of raminfr.v was successful.
+# Compile of timescale.v was successful.
+# Compile of uart_debug_if.v was successful.
+# Compile of uart_defines.v was successful.
+# Compile of uart_receiver.v was successful.
+# Compile of uart_regs.v was successful.
+# Compile of uart_rfifo.v was successful.
+# Compile of uart_sync_flops.v was successful.
+# Compile of uart_tfifo.v was successful.
+# Compile of uart_top.v was successful.
+# Compile of uart_transmitter.v was successful.
+# Compile of uart_wb.v was successful.
+# Compile of wb_conmax_arb.v was successful.
+# Compile of wb_conmax_defines.v was successful.
+# Compile of wb_conmax_master_if.v was successful.
+# Compile of wb_conmax_msel.v was successful.
+# Compile of wb_conmax_pri_dec.v was successful.
+# Compile of wb_conmax_pri_enc.v was successful.
+# Compile of wb_conmax_rf.v was successful.
+# Compile of wb_conmax_slave_if.v was successful.
+# Compile of wb_conmax_top.v was successful.
+# Compile of csr.v was successful.
+# Compile of config_string_and_timer.v was successful.
+# Compile of mmu_conv.v was successful.
+# 46 compiles, 0 failed with no errors. 
+vsim -voptargs=+acc work.openriscv_min_sopc_tb
+# vsim -voptargs=+acc work.openriscv_min_sopc_tb 
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-143) Recognized 1 FSM in module "uart_receiver(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "wb_conmax_arb(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "uart_transmitter(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "openriscv_min_sopc_tb(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "uart_wb(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "div(fast)".
+# Loading work.openriscv_min_sopc_tb(fast)
+# Loading work.openriscv_min_sopc(fast)
+# Loading work.phy_bus_addr_conv(fast)
+# Loading work.openriscv(fast)
+# Loading work.pc_reg(fast)
+# Loading work.if_id(fast)
+# Loading work.id(fast)
+# Loading work.regfile(fast)
+# Loading work.id_ex(fast)
+# Loading work.ex(fast)
+# Loading work.ex_mem(fast)
+# Loading work.mem(fast)
+# Loading work.mem_wb(fast)
+# Loading work.ctrl(fast)
+# Loading work.div(fast)
+# Loading work.LLbit_reg(fast)
+# Loading work.csr(fast)
+# Loading work.mmu_conv(fast)
+# Loading work.wishbone_bus_if(fast)
+# Loading work.wishbone_bus_if(fast__1)
+# Loading work.data_ram(fast)
+# Loading work.uart_top(fast)
+# Loading work.uart_wb(fast)
+# Loading work.uart_regs(fast)
+# Loading work.uart_transmitter(fast)
+# Loading work.uart_tfifo(fast)
+# Loading work.raminfr(fast)
+# Loading work.uart_sync_flops(fast)
+# Loading work.uart_receiver(fast)
+# Loading work.uart_rfifo(fast)
+# Loading work.uart_debug_if(fast)
+# Loading work.config_string_and_timer(fast)
+# Loading work.wb_conmax_top(fast)
+# Loading work.wb_conmax_master_if(fast)
+# Loading work.wb_conmax_slave_if(fast)
+# Loading work.wb_conmax_arb(fast)
+# Loading work.wb_conmax_msel(fast)
+# Loading work.wb_conmax_pri_enc(fast)
+# Loading work.wb_conmax_pri_dec(fast)
+# Loading work.wb_conmax_rf(fast)
+quit -sim
+vsim -voptargs=+acc work.openriscv_min_sopc_tb
+# vsim work.openriscv_min_sopc_tb 
+# ** Note: (vsim-3812) Design is being optimized...
+# Loading work.openriscv_min_sopc_tb(fast)
+# Loading work.wb_conmax_slave_if(fast)
+run -a
+# (openriscv_min_sopc_tb.openriscv_min_sopc0.uart_top0) UART INFO: Data bus width is 32. Debug Interface present.
+# 
+# (openriscv_min_sopc_tb.openriscv_min_sopc0.uart_top0) UART INFO: Doesn't have baudrate output
+# 
+# reiko
+# plic_ndevs = 0
+# ../machine/misaligned_ldst.c:14: machine mode: misaligned_load_trap()
+# ../machine/misaligned_ldst.c:59: machine mode: misaligned_store_trap()
+# mem_size = 01000000
+# ==== begin: memcpy ====
+# 
+# ====  end: memcpy ====
+# ==== begin: memset ====
+# 
+# ====  end: memset ====
+# ==== begin: memset ====
+# memset 80481000 / 80493fac
+# memset 80482000 / 80493fac
+# memset 80483000 / 80493fac
+# memset 80484000 / 80493fac
+# memset 80485000 / 80493fac
+# memset 80486000 / 80493fac
+# memset 80487000 / 80493fac
+# memset 80488000 / 80493fac
+# memset 80489000 / 80493fac
+# memset 8048a000 / 80493fac
+# memset 8048b000 / 80493fac
+# memset 8048c000 / 80493fac
+# memset 8048d000 / 80493fac
+# memset 8048e000 / 80493fac
+# memset 8048f000 / 80493fac
+# memset 80490000 / 80493fac
+# memset 80491000 / 80493fac
+# memset 80492000 / 80493fac
+# memset 80493000 / 80493fac
+# 
+# ====  end: memset ====
+# ==== begin: memcpy ====
+# memcpy 80400000 / 8047e79d
+# memcpy 80401000 / 8047e79d
+# memcpy 80402000 / 8047e79d
+# memcpy 80403000 / 8047e79d
+# memcpy 80404000 / 8047e79d
+# memcpy 80405000 / 8047e79d
+# memcpy 80406000 / 8047e79d
+# memcpy 80407000 / 8047e79d
+# memcpy 80408000 / 8047e79d
+# memcpy 80409000 / 8047e79d
+# memcpy 8040a000 / 8047e79d
+# memcpy 8040b000 / 8047e79d
+# memcpy 8040c000 / 8047e79d
+# memcpy 8040d000 / 8047e79d
+# memcpy 8040e000 / 8047e79d
+# memcpy 8040f000 / 8047e79d
+# memcpy 80410000 / 8047e79d
+# memcpy 80411000 / 8047e79d
+# memcpy 80412000 / 8047e79d
+# memcpy 80413000 / 8047e79d
+# memcpy 80414000 / 8047e79d
+# memcpy 80415000 / 8047e79d
+# memcpy 80416000 / 8047e79d
+# memcpy 80417000 / 8047e79d
+# memcpy 80418000 / 8047e79d
+# memcpy 80419000 / 8047e79d
+# memcpy 8041a000 / 8047e79d
+# memcpy 8041b000 / 8047e79d
+# memcpy 8041c000 / 8047e79d
+# memcpy 8041d000 / 8047e79d
+# memcpy 8041e000 / 8047e79d
+# memcpy 8041f000 / 8047e79d
+# memcpy 80420000 / 8047e79d
+# memcpy 80421000 / 8047e79d
+# memcpy 80422000 / 8047e79d
+# memcpy 80423000 / 8047e79d
+# memcpy 80424000 / 8047e79d
+# memcpy 80425000 / 8047e79d
+# memcpy 80426000 / 8047e79d
+# memcpy 80427000 / 8047e79d
+# memcpy 80428000 / 8047e79d
+# memcpy 80429000 / 8047e79d
+# memcpy 8042a000 / 8047e79d
+# memcpy 8042b000 / 8047e79d
+# memcpy 8042c000 / 8047e79d
+# memcpy 8042d000 / 8047e79d
+# memcpy 8042e000 / 8047e79d
+# memcpy 8042f000 / 8047e79d
+# memcpy 80430000 / 8047e79d
+# memcpy 80431000 / 8047e79d
+# memcpy 80432000 / 8047e79d
+# memcpy 80433000 / 8047e79d
+# memcpy 80434000 / 8047e79d
+# memcpy 80435000 / 8047e79d
+# memcpy 80436000 / 8047e79d
+# memcpy 80437000 / 8047e79d
+# memcpy 80438000 / 8047e79d
+# memcpy 80439000 / 8047e79d
+# memcpy 8043a000 / 8047e79d
+# memcpy 8043b000 / 8047e79d
+# memcpy 8043c000 / 8047e79d
+# memcpy 8043d000 / 8047e79d
+# memcpy 8043e000 / 8047e79d
+# memcpy 8043f000 / 8047e79d
+# memcpy 80440000 / 8047e79d
+# memcpy 80441000 / 8047e79d
+# memcpy 80442000 / 8047e79d
+# memcpy 80443000 / 8047e79d
+# memcpy 80444000 / 8047e79d
+# memcpy 80445000 / 8047e79d
+# memcpy 80446000 / 8047e79d
+# memcpy 80447000 / 8047e79d
+# memcpy 80448000 / 8047e79d
+# memcpy 80449000 / 8047e79d
+# memcpy 8044a000 / 8047e79d
+# memcpy 8044b000 / 8047e79d
+# memcpy 8044c000 / 8047e79d
+# memcpy 8044d000 / 8047e79d
+# memcpy 8044e000 / 8047e79d
+# memcpy 8044f000 / 8047e79d
+# memcpy 80450000 / 8047e79d
+# memcpy 80451000 / 8047e79d
+# memcpy 80452000 / 8047e79d
+# memcpy 80453000 / 8047e79d
+# memcpy 80454000 / 8047e79d
+# memcpy 80455000 / 8047e79d
+# memcpy 80456000 / 8047e79d
+# memcpy 80457000 / 8047e79d
+# memcpy 80458000 / 8047e79d
+# memcpy 80459000 / 8047e79d
+# memcpy 8045a000 / 8047e79d
+# memcpy 8045b000 / 8047e79d
+# memcpy 8045c000 / 8047e79d
+# memcpy 8045d000 / 8047e79d
+# memcpy 8045e000 / 8047e79d
+# memcpy 8045f000 / 8047e79d
+# memcpy 80460000 / 8047e79d
+# memcpy 80461000 / 8047e79d
+# memcpy 80462000 / 8047e79d
+# memcpy 80463000 / 8047e79d
+# memcpy 80464000 / 8047e79d
+# memcpy 80465000 / 8047e79d
+# memcpy 80466000 / 8047e79d
+# memcpy 80467000 / 8047e79d
+# memcpy 80468000 / 8047e79d
+# memcpy 80469000 / 8047e79d
+# memcpy 8046a000 / 8047e79d
+# memcpy 8046b000 / 8047e79d
+# memcpy 8046c000 / 8047e79d
+# memcpy 8046d000 / 8047e79d
+# memcpy 8046e000 / 8047e79d
+# memcpy 8046f000 / 8047e79d
+# memcpy 80470000 / 8047e79d
+# memcpy 80471000 / 8047e79d
+# memcpy 80472000 / 8047e79d
+# memcpy 80473000 / 8047e79d
+# memcpy 80474000 / 8047e79d
+# memcpy 80475000 / 8047e79d
+# memcpy 80476000 / 8047e79d
+# memcpy 80477000 / 8047e79d
+# memcpy 80478000 / 8047e79d
+# memcpy 80479000 / 8047e79d
+# memcpy 8047a000 / 8047e79d
+# memcpy 8047b000 / 8047e79d
+# memcpy 8047c000 / 8047e79d
+# memcpy 8047d000 / 8047e79d
+# memcpy 8047e000 / 8047e79d
+# 
+# ====  end: memcpy ====
+# ==== begin: memset ====
+# 
+# ====  end: memset ====
+# ==== begin: memset ====
+# 
+# ====  end: memset ====
+# ==== begin: memset ====
+# memset 80494000 / 80495000
+# 
+# ====  end: memset ====
+# ==== begin: memset ====
+# memset 80495000 / 80496000
+# 
+# ====  end: memset ====
+# ../machine/minit.c:199: mie = 0000082a
+# 
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc0000010, mbadaddr = 0xc0080ffc, ex 0, rd 0, wt 1
+# (THU.CST) os is loading ...
+# 
+# Special kernel symbols:
+#   entry  0xc000000c (phys)
+#   etext  0xc000f000 (phys)
+#   edata  0xc0081000 (phys)
+#   end    0xc0093fac (phys)
+# Kernel executable memory footprint: 592KB
+# memory management: default_pmm_manager
+# physcial memory map:
+#   memory: 0x00c00000, [0x80400000, 0x80ffffff].
+#   memory: 12MB, [2052MB, 2064MB).
+# ptbr = 80495000 (phy)
+# pages = 80496000 (phy)
+# page init: 0 / c00
+# page init: 100 / c00
+# page init: 200 / c00
+# page init: 300 / c00
+# page init: 400 / c00
+# page init: 500 / c00
+# page init: 600 / c00
+# page init: 700 / c00
+# page init: 800 / c00
+# page init: 900 / c00
+# page init: a00 / c00
+# page init: b00 / c00
+# page init: OK        
+# check_alloc_page() succeeded!
+# check_pgdir() succeeded!
+# boot_map_segment: 1000 / 0 
+# boot_map_segment: f00 / 0 
+# boot_map_segment: e00 / 0 
+# boot_map_segment: d00 / 0 
+# boot_map_segment: c00 / 0 
+# boot_map_segment: b00 / 0 
+# boot_map_segment: a00 / 0 
+# boot_map_segment: 900 / 0 
+# boot_map_segment: 800 / 0 
+# boot_map_segment: 700 / 0 
+# boot_map_segment: 600 / 0 
+# boot_map_segment: 500 / 0 
+# boot_map_segment: 400 / 0 
+# boot_map_segment: 300 / 0 
+# boot_map_segment: 200 / 0 
+# boot_map_segment: 100 / 0 
+# boot_map_segment: OK          
+# boot_map_segment: OK          
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc000597c, mbadaddr = 0xc0080fac, ex 0, rd 0, wt 1
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc0003854, mbadaddr = 0xc0093ee4, ex 0, rd 0, wt 1
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc000389c, mbadaddr = 0xc00976a8, ex 0, rd 0, wt 1
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc000671c, mbadaddr = 0xc00ae000, ex 0, rd 0, wt 1
+# check_boot_pgdir() succeeded!
+# -------------------- BEGIN --------------------
+# --------------------- END ---------------------
+# use SLOB allocator
+# kmalloc_init() succeeded!
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc0002474, mbadaddr = 0xc007e768, ex 0, rd 0, wt 1
+# check_vma_struct() succeeded!
+# Store/AMO access fault
+# page falut at 0x00000100: K/W
+# ../machine/emulation.c:152: tlb_miss_trap: update, mepc = 0xc000a918, mbadaddr = 0xc0081010, ex 0, rd 0, wt 1
+# check_pgfault() succeeded!
+# check_vmm() succeeded.
+# bootstack = 0xc007f000, bootstacktop = 0xc0081000
+# ++ setup timer interrupts
+# bootstack = 0xc007f000, bootstacktop = 0xc0081000
+# kerne100 ticks
+# l_execve: pid = 2, name = "forktest".
+# Environment call from S-mode
+# do_execve
+# proc name: forktest pid: 2
+# proc->cr3: 0x80523000
+# proc ra = 0xc000ba2c, sp = 0xc0121f70
+# 
+# 100 ticks
+# I am child 16
+# I am child 15
+# I am child 14
+# I am child 13
+# I am child 12
+# I100 ticks
+# I am child 10
+# I am child 9
+# I am child 8
+# I am child 7
+# I am child 6
+# I am 100 ticks
+# I am child 4
+# I am child 3
+# I am child 2
+# I am child 1
+# I am child 0
+# 100 ticks
+# I am child 18
+# I am child 17
+#  am child 11
+# child 5
+# 100 ticks
+# I am child 25
+# I am child 24
+# I am child 23
+# I am child 22
+# I am child 21
+# I100 ticks
+# I am child 19
+# 100 ticks
+# I am child 31
+# I am child 30
+# I am child 29
+# I am child 28
+# I am child 27
+# I100 ticks
+#  am child 20
+#  am child 26
+# forktest p100 ticks
+# ass.
+# all user-mode processes have quit.
+# init check memory pass.
+# kernel panic at kern/process/proc.c:481:
+#     initproc exit.
+# 
+# 100 ticks

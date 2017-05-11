@@ -7,80 +7,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-volatile uint64_t tohost __attribute__((aligned(64))) __attribute__((section("htif")));
-volatile uint64_t fromhost __attribute__((aligned(64))) __attribute__((section("htif")));
-static spinlock_t htif_lock = SPINLOCK_INIT;
-
-void __attribute__((noreturn)) bad_trap()
-{
-  die("machine mode: unhandlable trap %x @ %p", read_csr(mcause), read_csr(mepc));
-}
-
-static uintptr_t mcall_hart_id()
-{
-  return read_const_csr(mhartid);
-}
-
-static void request_htif_keyboard_interrupt()
-{
-  assert(tohost == 0);
-  tohost = TOHOST_CMD(1, 0, 0);
-}
-
-static void __htif_interrupt()
-{
-  // we should only be interrupted by keypresses
-  uint64_t fh = fromhost;
-  if (!fh)
-    return;
-  if (!(FROMHOST_DEV(fh) == 1 && FROMHOST_CMD(fh) == 0))
-    die("unexpected htif interrupt");
-  HLS()->console_ibuf = 1 + (uint8_t)FROMHOST_DATA(fh);
-  fromhost = 0;
-  set_csr(mip, MIP_SSIP);
-}
-
-static void do_tohost_fromhost(uintptr_t dev, uintptr_t cmd, uintptr_t data)
-{
-  spinlock_lock(&htif_lock);
-    while (tohost)
-      __htif_interrupt();
-    tohost = TOHOST_CMD(dev, cmd, data);
-
-    while (1) {
-      uint64_t fh = fromhost;
-      if (fh) {
-        if (FROMHOST_DEV(fh) == dev && FROMHOST_CMD(fh) == cmd) {
-          fromhost = 0;
-          break;
-        }
-        __htif_interrupt();
-      }
-    }
-  spinlock_unlock(&htif_lock);
-}
-
-static void htif_interrupt()
-{
-  if (spinlock_trylock(&htif_lock) == 0) {
-    __htif_interrupt();
-    spinlock_unlock(&htif_lock);
-  }
-}
-
-uintptr_t timer_interrupt()
-{
-  // log("mie = %x", read_csr(mie));
-  // just send the timer interrupt to the supervisor
-  clear_csr(mie, MIP_MTIP);
-  // log("mie = %x", read_csr(mie));
-  set_csr(mip, MIP_STIP);
-
-  // and poll the HTIF console
-  htif_interrupt();
-  return 0;
-}
-
 uintptr_t uart;
 
 static inline uint8_t
@@ -146,13 +72,99 @@ fpga_uart_getchar(void) {
     uint8_t c;
 
     if( (inb(uart + 5) & 0x01) == 0)
-      return -1;
+      return 0xffu;
     c = inb(uart + 0) & 0xFF;
 
     if (c == 127) {
         c = '\b';
     }
     return c;
+}
+
+volatile uint64_t tohost __attribute__((aligned(64))) __attribute__((section("htif")));
+volatile uint64_t fromhost __attribute__((aligned(64))) __attribute__((section("htif")));
+static spinlock_t htif_lock = SPINLOCK_INIT;
+
+void __attribute__((noreturn)) bad_trap()
+{
+  die("machine mode: unhandlable trap %x @ %p", read_csr(mcause), read_csr(mepc));
+}
+
+static uintptr_t mcall_hart_id()
+{
+  return read_const_csr(mhartid);
+}
+
+static void request_htif_keyboard_interrupt()
+{
+  // assert(tohost == 0);
+  tohost = TOHOST_CMD(1, 0, 0);
+}
+
+static void __htif_interrupt()
+{
+  // we should only be interrupted by keypresses
+  uint64_t fh = fromhost;
+  if (!fh)
+    return;
+  if (!(FROMHOST_DEV(fh) == 1 && FROMHOST_CMD(fh) == 0))
+    die("unexpected htif interrupt");
+  HLS()->console_ibuf = 1 + (uint8_t)FROMHOST_DATA(fh);
+  fromhost = 0;
+  set_csr(mip, MIP_SSIP);
+}
+
+static void do_tohost_fromhost(uintptr_t dev, uintptr_t cmd, uintptr_t data)
+{
+  spinlock_lock(&htif_lock);
+    while (tohost)
+      __htif_interrupt();
+    tohost = TOHOST_CMD(dev, cmd, data);
+
+    while (1) {
+      uint64_t fh = fromhost;
+      if (fh) {
+        if (FROMHOST_DEV(fh) == dev && FROMHOST_CMD(fh) == cmd) {
+          fromhost = 0;
+          break;
+        }
+        __htif_interrupt();
+      }
+    }
+  spinlock_unlock(&htif_lock);
+}
+
+static void htif_interrupt()
+{
+  if (spinlock_trylock(&htif_lock) == 0) {
+    __htif_interrupt();
+    spinlock_unlock(&htif_lock);
+  }
+}
+
+uintptr_t timer_interrupt()
+{
+  // log("mie = %x", read_csr(mie));
+  // just send the timer interrupt to the supervisor
+  clear_csr(mie, MIP_MTIP);
+  // log("mie = %x", read_csr(mie));
+  set_csr(mip, MIP_STIP);
+
+  // and poll the HTIF console
+  htif_interrupt();
+
+  if(uart != 0)
+  {
+    uint8_t c;
+    c = fpga_uart_getchar();
+    if(c != 0xffu)
+    {
+      HLS()->console_ibuf = 1 + c;
+
+      set_csr(mip, MIP_SSIP);
+    }
+  }
+  return 0;
 }
 
 static uintptr_t mcall_console_putchar(uint8_t ch)
@@ -227,8 +239,11 @@ static void reset_ssip()
 static uintptr_t mcall_console_getchar()
 {
   int ch = atomic_swap(&HLS()->console_ibuf, -1);
-  if (ch >= 0)
-    request_htif_keyboard_interrupt();
+  if(uart == 0)
+  {
+    if (ch >= 0)
+      request_htif_keyboard_interrupt();
+  }
   reset_ssip();
   return ch - 1;
 }

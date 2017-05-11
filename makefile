@@ -1,6 +1,6 @@
 MAKE = make
 
-all: build/bbl build/bbl.asm Bin2Mem ../modelsim/inst_rom.data
+all: build/bbl build/bbl.asm Bin2Mem ../modelsim/inst_rom.data build/bbl.data build/bbl.bin
 
 RV32 = 1
 SPIKE_FLAGS = 

@@ -60,7 +60,7 @@ void boot_loader()
   load_kernel_elf(&_payload_start, &_payload_end - &_payload_start, &info);
   supervisor_vm_init();
 #ifdef PK_ENABLE_LOGO
-  //print_logo();
+  print_logo();
 #endif
   mb();
   elf_loaded = 1;
