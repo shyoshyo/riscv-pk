@@ -7,7 +7,7 @@ SPIKE_FLAGS =
 
 ifndef CROSS_COMPILE
 ifeq ($(RV32),1)
-	CROSS_COMPILE = riscv32-unknown-elf
+	CROSS_COMPILE = riscv32-unknown-linux-gnu
 	SPIKE_FLAGS += --isa=RV32IMA
 else
 	CROSS_COMPILE = riscv64-unknown-linux-gnu

@@ -23,7 +23,8 @@ void load_kernel_elf(void* blob, size_t size, kernel_elf_info* info)
   Elf_Phdr* ph = blob + eh->e_phoff;
   if (eh->e_phoff + phdr_size > size)
     goto fail;
-  first_free_paddr = ROUNDUP(first_free_paddr, MEGAPAGE_SIZE);
+  // first_free_paddr = ROUNDUP(first_free_paddr, MEGAPAGE_SIZE);
+  first_free_paddr = ROUNDUP(first_free_paddr, RISCV_PGSIZE);
   for (int i = 0; i < eh->e_phnum; i++)
     if (ph[i].p_type == PT_LOAD && ph[i].p_memsz && ph[i].p_vaddr < min_vaddr)
       min_vaddr = ph[i].p_vaddr;
