@@ -7,12 +7,18 @@ void* memcpy(void* dest, const void* src, size_t len)
 {
   const char* s = src;
   char *d = dest;
+  
+  int progress = 0;
+  const char *nxt = dest;
 
-  printm("==== begin: memcpy ====\n");
   if ((((uintptr_t)dest | (uintptr_t)src) & (sizeof(uintptr_t)-1)) == 0) {
     while ((void*)d < (dest + len - (sizeof(uintptr_t)-1))) {
-      if(((uintptr_t)d & 0xFFF) == 0x0)
-        printm("memcpy %x / %x\r", d, (dest + len - (sizeof(uintptr_t)-1)));
+      if(d > nxt)
+      {
+        printm("memcpy: %d%c\r", progress, '%');
+        progress += 1;
+        nxt = dest + progress * len / 100;
+      }
 
       *(uintptr_t*)d = *(const uintptr_t*)s;
       d += sizeof(uintptr_t);
@@ -22,18 +28,23 @@ void* memcpy(void* dest, const void* src, size_t len)
 
   while (d < (char*)(dest + len))
   {
-    if(((uintptr_t)d & 0xFFF) == 0x0)
-      printm("memcpy %x / %x\r", d, (dest + len));
-      
+    if(d > nxt)
+    {
+      printm("memcpy: %d%c\r", progress, '%');
+      progress += 1;
+      nxt = dest + progress * len / 100;
+    }
+     
     *d++ = *s++;
   }
-  printm("\n====  end: memcpy ====\n");
+  
+  printm("memcpy: ok!    \n");
+
   return dest;
 }
 
 void* memset(void* dest, int byte, size_t len)
 {
-  printm("==== begin: memset ====\n");
   if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {
     uintptr_t word = byte & 0xFF;
     word |= word << 8;
@@ -41,22 +52,41 @@ void* memset(void* dest, int byte, size_t len)
     word |= word << 16 << 16;
 
     uintptr_t *d = dest;
+    int progress = 0;
+    const uintptr_t *nxt = dest;
+
     while (d < (uintptr_t*)(dest + len))
     {
-      if(((uintptr_t)d & 0xFFF) == 0x0)
-        printm("memset %x / %x\r", d, dest + len);
+      if(d >= nxt)
+      {
+        printm("memcpy: %d%c\r", progress, '%');
+        progress += 1;
+        nxt = dest + progress * len / 100;
+      }
+
       *d++ = word;
     }
   } else {
     char *d = dest;
+    int progress = 0;
+    const char *nxt = dest;
+    
     while (d < (char*)(dest + len))
     {
-      if(((uintptr_t)d & 0xFFF) == 0x0)
-        printm("memset %x / %x\r", d, dest + len);
+      if(d >= nxt)
+      {
+        printm("memcpy: %d%c\r", progress, '%');
+        progress += 1;
+        nxt = dest + progress * len / 100;
+      }
+
+
       *d++ = byte;
     }
   }
-  printm("\n====  end: memset ====\n");
+    
+  printm("memset: ok!    \n");
+
   return dest;
 }
 

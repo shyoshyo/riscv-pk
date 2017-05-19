@@ -38,9 +38,11 @@ fpga_uart_init()
     outb(uart + 3, 0x80);
 
     // 32'd55; <=> wishbone clk 100M         115200
-    // 32'h1b; <=> wishbone clk 50M,         115200
+    // 32'd27; <=> wishbone clk 50M,         115200
+    // 32'h14; <=> wishbone clk 25M,         115200
     outb(uart + 1, 0x00);
-    outb(uart + 0, 54);
+    outb(uart + 1, 0x00);
+    outb(uart + 0, 14);
 
     // 8 bit, no chk, no parity, 1 stop
     outb(uart + 3, 0x03);
@@ -144,10 +146,8 @@ static void htif_interrupt()
 
 uintptr_t timer_interrupt()
 {
-  // log("mie = %x", read_csr(mie));
   // just send the timer interrupt to the supervisor
   clear_csr(mie, MIP_MTIP);
-  // log("mie = %x", read_csr(mie));
   set_csr(mip, MIP_STIP);
 
   // and poll the HTIF console
@@ -262,14 +262,9 @@ static uintptr_t mcall_shutdown()
 
 static uintptr_t mcall_set_timer(uint64_t when)
 {
-  // log("mcall_set_timer: mie = %x", read_csr(mie));
-  
   *HLS()->timecmp = when;
   clear_csr(mip, MIP_STIP);
   set_csr(mie, MIP_MTIP);
-  
-  // log("mcall_set_timer: mie = %x", read_csr(mie));
-  
   return 0;
 }
 

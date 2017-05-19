@@ -87,7 +87,11 @@ static void memory_init()
 {
   mem_size = mem_size / MEGAPAGE_SIZE * MEGAPAGE_SIZE;
   first_free_paddr = sbi_top_paddr() + num_harts * RISCV_PGSIZE;
-  printm("mem_size = %x\n", mem_size);
+}
+
+static void memory_check()
+{
+  
 }
 
 static void hart_init()
@@ -99,7 +103,6 @@ static void hart_init()
 
 static void plic_init()
 {
-  printm("plic_ndevs = %d\n", plic_ndevs);
   for (size_t i = 1; i <= plic_ndevs; i++)
     plic_priorities[i] = 1;
 }
@@ -146,11 +149,19 @@ static void unaligned_r_w_test()
 
   uint32_t value = 123;
   asm volatile("lw %0, (%1)" : "=r"(value) : "r"((uintptr_t)s + 1));
+  if(value != 0xf0123456)
+    log("value = %x\n", value);
   assert(value == 0xf0123456);
-
+  
   value = 0x87654321;
   asm volatile("sw %0, (%1)" : :"r"(value), "r"((uintptr_t)s + 3) : "memory");
+  
+  if(s[0] != 0x21345678)
+    log("s[0] = %x\n", s[0]);
   assert(s[0] == 0x21345678);
+  
+  if(s[1] != 0x9a876543)
+    log("s[1] = %x\n", s[1]);
   assert(s[1] == 0x9a876543);
 }
 
@@ -175,8 +186,11 @@ void init_first_hart()
   hart_plic_init();
   prci_test();
   unaligned_r_w_test();
-  // clock_test();
   memory_init();
+  memory_check();
+#if 0
+  clock_test();
+#endif
   boot_loader();
 }
 
@@ -197,8 +211,6 @@ void enter_supervisor_mode(void (*fn)(uintptr_t), uintptr_t stack)
   write_csr(mepc, fn);
   write_csr(sptbr, (uintptr_t)root_page_table >> RISCV_PGSHIFT);
 
-  log("mie = %x\n", read_csr(mie));
-  
   asm volatile ("mv a0, %0; mv sp, %0; mret" : : "r" (stack));
   __builtin_unreachable();
 }

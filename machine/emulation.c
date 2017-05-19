@@ -70,7 +70,7 @@ void illegal_insn_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc)
   uintptr_t mstatus;
   insn_t insn = get_insn(mepc, &mstatus);
 
-  // log("insn = %x", insn);
+  // log("insn = %x, mepc = %x, mstatus = %x", insn, mepc, mstatus);
   
   if (unlikely((insn & 3) != 3))
     return truly_illegal_insn(regs, mcause, mepc, mstatus, insn);
@@ -148,8 +148,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
       // need update
       if(((uintptr_t)read_csr(0x7c0)) >> (__riscv_xlen - 1))
       {
-        log("tlb_miss_trap: update, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
-          mepc, va, ex, rd, wt);
+        // log("tlb_miss_trap: update, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
+        //   mepc, va, ex, rd, wt);
 
         uintptr_t index_old = read_csr(0x7c0);
         uintptr_t va_old = read_csr(0x7c1);
@@ -163,6 +163,8 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
         assert((pte | PTE_D) == (pte_old | PTE_A | PTE_D));
         assert(pte_p == pte_p_old);
 
+        pte |= PTE_D;
+        
         *pte_p = pte;
         write_csr(0x7c3, pte);
 

@@ -28,7 +28,7 @@ static void supervisor_vm_init()
   memset(middle_pt, 0, (num_middle_pts + 1) * RISCV_PGSIZE);
   for (size_t i = 0; i < num_middle_pts - 1; i++)
     root_pt[(1<<RISCV_PGLEVEL_BITS)-num_middle_pts+i] = ptd_create(((uintptr_t)middle_pt >> RISCV_PGSHIFT) + i);
-  printm(">>> %d\n", num_middle_pts);
+  // printm(">>> %d\n", num_middle_pts);
 #else
   die("not implemented!");
   size_t num_middle_pts = (-info.first_user_vaddr - 1) / GIGAPAGE_SIZE + 1;
@@ -71,6 +71,8 @@ static void supervisor_vm_init()
 
 void boot_loader()
 {
+  log("loading payload OS...");
+  
   extern char _payload_start, _payload_end;
   load_kernel_elf(&_payload_start, &_payload_end - &_payload_start, &info);
   supervisor_vm_init();
