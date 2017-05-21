@@ -32,17 +32,17 @@ outw(uintptr_t port, uint32_t data) {
 }
 
 void
-fpga_uart_init()
+fpga_uart_init(uint16_t divclk)
 {
     // set clk divsor
     outb(uart + 3, 0x80);
 
     // 32'd55; <=> wishbone clk 100M         115200
     // 32'd27; <=> wishbone clk 50M,         115200
-    // 32'h14; <=> wishbone clk 25M,         115200
-    outb(uart + 1, 0x00);
-    outb(uart + 1, 0x00);
-    outb(uart + 0, 14);
+    // 32'd22; <=> wishbone clk 40M,         115200
+    // 32'd14; <=> wishbone clk 25M,         115200
+    outb(uart + 1, (uint8_t)(divclk >> 8));
+    outb(uart + 0, (uint8_t)divclk);
 
     // 8 bit, no chk, no parity, 1 stop
     outb(uart + 3, 0x03);

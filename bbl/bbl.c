@@ -71,7 +71,7 @@ static void supervisor_vm_init()
 
 void boot_loader()
 {
-  log("loading payload OS...");
+  log("machine mode: loading payload OS...");
   
   extern char _payload_start, _payload_end;
   load_kernel_elf(&_payload_start, &_payload_end - &_payload_start, &info);

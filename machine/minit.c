@@ -131,7 +131,7 @@ static void hart_plic_init()
   if (!plic_ndevs)
     return;
 
-  die("here");
+  die("not implemented");
 
   size_t ie_words = plic_ndevs / sizeof(uintptr_t) + 1;
   for (size_t i = 0; i < ie_words; i++)

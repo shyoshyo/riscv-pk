@@ -93,18 +93,25 @@ static void query_harts(const char* config_string)
 }
 
 extern uintptr_t uart;
-extern void fpga_uart_init();
+extern void fpga_uart_init(uint16_t);
 
 static void query_uart(const char* config_string)
 {
-  query_result res = query_config_string(config_string, "uart{0{reiko");
+  query_result res = query_config_string(config_string, "uart{0{type");
   if(!res.start) return;
+
+  get_string(type, res);
+  if(strcmp(type, "UART16550IPCore") != 0) return;
 
   res = query_config_string(config_string, "uart{0{addr");
   assert(res.start);
   uart = get_uint(res);
 
-  fpga_uart_init();
+  res = query_config_string(config_string, "uart{0{divclk");
+
+  uint16_t divclk = get_uint(res);
+
+  fpga_uart_init(divclk);
 }
 
 void parse_config_string()
