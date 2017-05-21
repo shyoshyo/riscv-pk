@@ -37,8 +37,8 @@ extern volatile uint32_t* plic_priorities;
 extern size_t plic_ndevs;
 
 typedef struct {
-  uint64_t* timecmp;
-  uint32_t* ipi;
+  volatile uint64_t* timecmp;
+  volatile uint32_t* ipi;
   volatile int mipi_pending;
   volatile int sipi_pending;
   int console_ibuf;

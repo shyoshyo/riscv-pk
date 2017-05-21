@@ -105,8 +105,6 @@ static void query_uart(const char* config_string)
   uart = get_uint(res);
 
   fpga_uart_init();
-
-  printm("reiko\n");
 }
 
 void parse_config_string()

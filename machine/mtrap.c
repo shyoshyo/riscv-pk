@@ -64,23 +64,47 @@ fpga_uart_putchar(uint8_t c) {
         fpga_uart_putchar_sub('\b');
         fpga_uart_putchar_sub(' ');
         fpga_uart_putchar_sub('\b');
-    }else {
+    } else if(c == '\n') {
+        fpga_uart_putchar_sub('\r');
+        fpga_uart_putchar_sub('\n');
+    } else {
         fpga_uart_putchar_sub(c);
     }
 }
 
 static uint8_t
 fpga_uart_getchar(void) {
+    static int last_is_CR = 0;
     uint8_t c;
 
-    if( (inb(uart + 5) & 0x01) == 0)
-      return 0xffu;
-    c = inb(uart + 0) & 0xFF;
+    for(;;)
+    {
+      if( (inb(uart + 5) & 0x01) == 0)
+        return 0xffu;
+      c = inb(uart + 0) & 0xFF;
 
-    if (c == 127) {
-        c = '\b';
+      if (c == 127)
+      {
+          c = '\b';
+      }
+
+      if(c == '\r')
+      {
+          c = '\n';
+          last_is_CR = 1;
+      }
+      else
+      {
+          if(last_is_CR && c == '\n')
+          {
+              last_is_CR = 0;
+              continue;
+          }
+          last_is_CR = 0;
+      }
+
+      return c;
     }
-    return c;
 }
 
 volatile uint64_t tohost __attribute__((aligned(64))) __attribute__((section("htif")));
@@ -188,6 +212,7 @@ static uintptr_t mcall_htif_syscall(uintptr_t magic_mem)
 
 void poweroff()
 {
+  log("machine mode: System shutdown!");
   while (1)
     tohost = 1;
 }
@@ -200,7 +225,7 @@ void putstring(const char* s)
 
 void printm(const char* s, ...)
 {
-  char buf[256];
+  char buf[4096];
   va_list vl;
 
   va_start(vl, s);

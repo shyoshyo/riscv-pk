@@ -112,13 +112,16 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
   uintptr_t va = read_csr(mbadaddr);
 
   // log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d",
-  //   mepc, va, ex, rd, wt);
+  //    mepc, va, ex, rd, wt);
 
   int mxr = (EXTRACT_FIELD(mstatus, MSTATUS_MXR));
   int i;  
   for(i = levels - 1; ; i--)
   {
     if(!(i >= 0)) goto fail;
+    // log("tlb_miss_trap, mepc = %p, mbadaddr = %p, ex %d, rd %d, wt %d, i level = %d",
+    ///    mepc, va, ex, rd, wt, i);
+
 
     p -= vpnlen;
     mask = ~((~mask) >> vpnlen);
@@ -163,8 +166,6 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
         assert((pte | PTE_D) == (pte_old | PTE_A | PTE_D));
         assert(pte_p == pte_p_old);
 
-        pte |= PTE_D;
-        
         *pte_p = pte;
         write_csr(0x7c3, pte);
 
@@ -172,7 +173,6 @@ void tlb_miss_trap(uintptr_t* regs, uintptr_t mcause, uintptr_t mepc, int ex, in
         assert(read_csr(0x7c0) == (index_old << 1) >> 1);
         return;
       }
-
 
       write_csr(0x7c0, index);
       write_csr(0x7c1, va & mask);

@@ -96,6 +96,7 @@ static void memory_check()
 
 static void hart_init()
 {
+  num_harts = 0;
   mstatus_init();
   fp_init();
   delegate_traps();
@@ -109,12 +110,10 @@ static void plic_init()
 
 static void prci_test()
 {
-  /*
   assert(!(read_csr(mip) & MIP_MSIP));
   *HLS()->ipi = 1;
   assert(read_csr(mip) & MIP_MSIP);
   *HLS()->ipi = 0;
-  */
 
   assert(!(read_csr(mip) & MIP_MTIP));
   *HLS()->timecmp = 0;
