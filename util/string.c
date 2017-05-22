@@ -1,48 +1,21 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "mtrap.h"
-
 void* memcpy(void* dest, const void* src, size_t len)
 {
   const char* s = src;
   char *d = dest;
-  
-  int progress = 0;
-  const char *nxt = dest;
-
   if ((((uintptr_t)dest | (uintptr_t)src) & (sizeof(uintptr_t)-1)) == 0) {
     while ((void*)d < (dest + len - (sizeof(uintptr_t)-1))) {
-      if(d > nxt)
-      {
-        printm("memcpy: %d%c\r", progress, '%');
-        progress += 1;
-        nxt = dest + progress * len / 100;
-      }
-
       *(uintptr_t*)d = *(const uintptr_t*)s;
       d += sizeof(uintptr_t);
       s += sizeof(uintptr_t);
     }
   }
-
   while (d < (char*)(dest + len))
-  {
-    if(d > nxt)
-    {
-      printm("memcpy: %d%c\r", progress, '%');
-      progress += 1;
-      nxt = dest + progress * len / 100;
-    }
-     
     *d++ = *s++;
-  }
-  
-  printm("memcpy: ok!    \n");
-
   return dest;
 }
-
 void* memset(void* dest, int byte, size_t len)
 {
   if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {
@@ -50,46 +23,16 @@ void* memset(void* dest, int byte, size_t len)
     word |= word << 8;
     word |= word << 16;
     word |= word << 16 << 16;
-
     uintptr_t *d = dest;
-    int progress = 0;
-    const uintptr_t *nxt = dest;
-
     while (d < (uintptr_t*)(dest + len))
-    {
-      if(d >= nxt)
-      {
-        printm("memset: %d%c\r", progress, '%');
-        progress += 1;
-        nxt = dest + progress * len / 100;
-      }
-
       *d++ = word;
-    }
   } else {
     char *d = dest;
-    int progress = 0;
-    const char *nxt = dest;
-    
     while (d < (char*)(dest + len))
-    {
-      if(d >= nxt)
-      {
-        printm("memset: %d%c\r", progress, '%');
-        progress += 1;
-        nxt = dest + progress * len / 100;
-      }
-
-
       *d++ = byte;
-    }
   }
-    
-  printm("memset: ok!    \n");
-
   return dest;
 }
-
 size_t strlen(const char *s)
 {
   const char *p = s;
@@ -97,19 +40,15 @@ size_t strlen(const char *s)
     p++;
   return p - s;
 }
-
 int strcmp(const char* s1, const char* s2)
 {
   unsigned char c1, c2;
-
   do {
     c1 = *s1++;
     c2 = *s2++;
   } while (c1 != 0 && c1 == c2);
-
   return c1 - c2;
 }
-
 char* strcpy(char* dest, const char* src)
 {
   char* d = dest;
@@ -117,24 +56,19 @@ char* strcpy(char* dest, const char* src)
     ;
   return dest;
 }
-
 long atol(const char* str)
 {
   long res = 0;
   int sign = 0;
-
   while (*str == ' ')
     str++;
-
   if (*str == '-' || *str == '+') {
     sign = *str == '-';
     str++;
   }
-
   while (*str) {
     res *= 10;
     res += *str++ - '0';
   }
-
   return sign ? -res : res;
 }
