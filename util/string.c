@@ -59,7 +59,7 @@ void* memset(void* dest, int byte, size_t len)
     {
       if(d >= nxt)
       {
-        printm("memcpy: %d%c\r", progress, '%');
+        printm("memset: %d%c\r", progress, '%');
         progress += 1;
         nxt = dest + progress * len / 100;
       }
@@ -75,7 +75,7 @@ void* memset(void* dest, int byte, size_t len)
     {
       if(d >= nxt)
       {
-        printm("memcpy: %d%c\r", progress, '%');
+        printm("memset: %d%c\r", progress, '%');
         progress += 1;
         nxt = dest + progress * len / 100;
       }
